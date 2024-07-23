@@ -1,6 +1,6 @@
 import { Router } from "express";
 const router = Router();
-import { register, login, getUser, userEdit, favList, favToggle, watchLaterList, watchLaterToggle, watchedList, watchedToggle, watchingList, watchingToggle } from "../controller/user.js";
+import { register, login, getUser, userEdit, favList, favToggle, watchLaterList, watchLaterToggle, watchedList, watchedToggle, watchingList, watchingToggle, deleteAcc } from "../controller/user.js";
 import auth from "../middleware/authMiddleware.js";
 
 // Routes utilisateurs
@@ -16,6 +16,7 @@ router.get("/watched/list", auth, watchedList);
 router.patch("/watched/:movieId", auth, watchedToggle);
 router.get("/watching/list", auth, watchingList);
 router.patch("/watching/:movieId", auth, watchingToggle);
+router.delete("/accsuppr/:id", auth, deleteAcc)
 
 
 export default router;
