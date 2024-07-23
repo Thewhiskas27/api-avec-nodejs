@@ -16,7 +16,7 @@ router.get("/watched/list", auth, watchedList);
 router.patch("/watched/:movieId", auth, watchedToggle);
 router.get("/watching/list", auth, watchingList);
 router.patch("/watching/:movieId", auth, watchingToggle);
-router.delete("/accsuppr/:id", auth, deleteAcc)
+router.delete("/accdel/:id", auth, deleteAcc);
 
 
 export default router;

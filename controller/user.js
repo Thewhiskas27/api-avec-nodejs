@@ -317,29 +317,18 @@ export async function watchingToggle(req, res){
 
 export async function deleteAcc(req, res) {
   try {
-    const { name, password } = req.body;
+    const { email, password } = req.body;
 
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).send("Invalid name or password.");
 
     const validPassword = await compare(password, user.password);
     if (!validPassword)
       return res.status(400).send("Invalid name or password.");
 
-    let filter = {};
-    filter.name = name;
-    const role = await User.find(filter, {role: true, _id:false});
-    const token = sign(
-      { _id: user._id, email: user.email },
-      jwtSecret
-    );
-    /*res.header("x-auth-token", token).send({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: token
-      });*/
-    res.header("x-auth-token", token).send("Deletion successful");
+    await user.deleteOne();
+    res.send("Account deleted successfully!");
+    //res.header("x-auth-token", token).send("Deletion successful");
   } catch (error) {
     console.log(error);
     res.status(500).send("Server error");
