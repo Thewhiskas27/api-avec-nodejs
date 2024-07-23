@@ -1,6 +1,7 @@
 import express, { json } from "express";
 import { connect } from "mongoose";
 import userRoutes from "./routes/user.js";
+import movieRoutes from "./routes/movie.js";
 import { dbUri } from "./config.js";
 
 // Initialisation de l'application Express
@@ -16,5 +17,6 @@ connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Utilisation des routes utilisateurs
 app.use("/api/users", userRoutes);
+app.use("/api/movies", movieRoutes);
 
 export default app;
