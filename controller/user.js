@@ -181,8 +181,9 @@ export async function watchLaterToggle(req, res){
     if (!movie) return res.status(404).send("Movie not found");
     //const faves = user.favorites.values();
     for (const val in user.watched){
-      if (user.watched[val] === movie._id.toString()) {
-        user.watched = user.watched.filter(e => e !== movie._id.toString());
+      if (user.watched[val][0] === movie._id.toString()) {
+        user.watched.splice(val);
+        //user.watched = user.watched.filter(e => e !== movie._id.toString());
         await user.save();
       }
     }
@@ -247,13 +248,15 @@ export async function watchedToggle(req, res){
       }
     }
     for (const val in user.watched){
-      if (user.watched[val] === movie._id.toString()) {
-        user.watched = user.watched.filter(e => e !== movie._id.toString());
+      if (user.watched[val][0] === movie._id.toString()) {
+        user.watched.splice(val);
+        //user.watched = user.watched.filter(e => e !== movie._id.toString());
         await user.save();
         return res.status(200).send("The movie was taken out of your watched playlist");
       }
     }
-    user.watched.push(movie._id.toString());
+    const now = new Date();
+    user.watched.push([movie._id.toString(), now.toString()]);
     //console.log(user);
     await user.save();
     return res.status(200).send("The movie was marked to your watched playlist");
@@ -289,8 +292,9 @@ export async function watchingToggle(req, res){
     if (!movie) return res.status(404).send("Movie not found");
     //const faves = user.favorites.values();
     for (const val in user.watched){
-      if (user.watched[val] === movie._id.toString()) {
-        user.watched = user.watched.filter(e => e !== movie._id.toString());
+      if (user.watched[val][0] === movie._id.toString()) {
+        user.watched.splice(val);
+        //user.watched = user.watched.filter(e => e !== movie._id.toString());
         await user.save();
       }
     }
@@ -363,5 +367,29 @@ export async function aGetUser(req, res) {
   } catch (error) {
     //res.status(500).send(error);
     res.status(500).send("Server error");
+  }
+}
+
+export async function fyp(req, res) {
+  try{
+    const user = await User.findById(req.user._id);
+    let foryou = [];
+    if (!user) return res.status(404).send("User not found");
+    for (const val in user.favorites){
+      console.log(user.favorites[val]);
+      const movie = await Movie.findById(user.favorites[val]);
+      if (movie){
+        console.log(movie.genre);
+        let filter = {};
+        const rx = new RegExp(movie.genre, "i");
+        filter.genre = rx
+        let movies = await Movie.find(filter, {name: true, ageRating: true, _id: false});
+        console.log(movies);
+        if (movies) foryou.push(movies);
+      }
+    }
+    res.send(foryou);
+  }catch (error){
+    res.send(error);
   }
 }

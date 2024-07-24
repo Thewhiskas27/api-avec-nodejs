@@ -1,13 +1,14 @@
 import { Router } from "express";
 const router = Router();
 import { register, login, getUser, userEdit, favList, favToggle, watchLaterList, 
-    watchLaterToggle, watchedList, watchedToggle, watchingList, watchingToggle, deleteAcc, userList, aGetUser } from "../controller/user.js";
+    watchLaterToggle, watchedList, watchedToggle, watchingList, watchingToggle, deleteAcc, userList, aGetUser, fyp } from "../controller/user.js";
 import auth from "../middleware/authMiddleware.js";
 
 // Routes administrateur
 router.get("/regusers", auth, userList); // Affiche liste d'utilisateurs
 router.get("/regusers/:id", auth, aGetUser); // Infos sur le compte
 // Routes utilisateurs
+router.get("/foryou", auth, fyp);
 router.post("/register", register); // Création de compte
 router.post("/login", login); // Connexion
 router.patch("/login/:id", userEdit); // Modification des infos du compte
@@ -21,6 +22,7 @@ router.patch("/watched/:movieId", auth, watchedToggle); // Ajout / Suppression /
 router.get("/watching/list", auth, watchingList); // Liste de films en train d'être regardés
 router.patch("/watching/:movieId", auth, watchingToggle); // Ajout / Suppression / Déplacement d'un film à la liste de films en train de regarder
 router.delete("/accdel/:id", auth, deleteAcc); // Suppression d'un compte
+
 
 
 export default router;
