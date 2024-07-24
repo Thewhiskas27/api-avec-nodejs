@@ -7,15 +7,19 @@ import { jwtSecret } from "../config.js";
 // Inscription d'un film
 export async function register(req, res) {
   try {
-    const { name, director, genre, description, releaseDate, ageRating } = req.body;
+    if (req.user.role.toString() === "admin"){
+      const { name, director, genre, description, releaseDate, ageRating } = req.body;
 
-    let movie = await Movie.findOne({ name, director });
-    if (movie) return res.status(400).send("Movie already registered.");
-
-    movie = new Movie({ name, director, genre, description, releaseDate, ageRating });
-    await movie.save();
-
-    res.status(201).send(movie);
+      let movie = await Movie.findOne({ name, director });
+      if (movie) return res.status(400).send("Movie already registered.");
+  
+      movie = new Movie({ name, director, genre, description, releaseDate, ageRating });
+      await movie.save();
+  
+      res.status(201).send(movie);
+    }else{
+      res.status(401).send("You must be admin to do this!");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -75,7 +79,7 @@ export async function listFiltre(req, res) {
   }
 }
 
-// Récupération d'un utilisateur
+// Récupération d'un film
 export async function getMovie(req, res) {
   try {
     const movie = await Movie.findById(req.params.id, {_id:false, __v:false}).select("name director genre description releaseDate ageRating");
@@ -83,6 +87,45 @@ export async function getMovie(req, res) {
     res.send(movie);
   } catch (error) {
     //res.status(500).send(error);
+    res.status(500).send("Server error");
+  }
+}
+
+export async function movieEdit(req, res) {
+  try {
+      if (req.user.role.toString() === "admin")
+        {
+          const { name, director, genre, description, releaseDate, ageRating } = req.body;
+          let movie = await Movie.findById(req.params.id);
+          if (!movie) return res.status(404).send("Movie not found.");
+          if(name) movie.name = name;
+          if(director) movie.director = director;
+          if(genre) movie.genre = genre;
+          if(description) movie.description = description;
+          if(releaseDate) movie.releaseDate = releaseDate;
+          if(ageRating) movie.ageRating = ageRating;
+          await movie.save();
+          res.status(201).send("Movie succesfully edited");
+        }else{
+          res.status(401).send("You must be admin to do this!");
+        }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Server error");
+    }
+}
+
+export async function movieDel(req, res) {
+  try {
+    if (req.user.role.toString() === "admin"){
+      const movie = await Movie.findById(req.params.id);
+      if (!movie) return res.status(404).send("Movie not found");
+      await movie.deleteOne();
+      res.send("Movie deleted successfully!");
+    }
+    //res.header("x-auth-token", token).send("Deletion successful");
+  } catch (error) {
+    console.log(error);
     res.status(500).send("Server error");
   }
 }

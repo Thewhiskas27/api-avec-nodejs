@@ -20,13 +20,14 @@ export async function register(req, res) {
     await user.save();
 
     const token = sign(
-      { _id: user._id, email: user.email },
+      { _id: user._id, email: user.email, role: user.role },
       jwtSecret
     );
     res.header("x-auth-token", token).send({
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     });
   } catch (error) {
     res.status(500).send("Server error");
@@ -49,7 +50,7 @@ export async function login(req, res) {
     filter.email = email;
     const role = await User.find(filter, {role: true, _id:false});
     const token = sign(
-      { _id: user._id, email: user.email },
+      { _id: user._id, email: user.email, role: user.role },
       jwtSecret
     );
     /*res.header("x-auth-token", token).send({
@@ -92,7 +93,7 @@ export async function userEdit(req, res) {
             user.password = hashedPassword;
         }
         const token = sign(
-            { _id: user._id, email: user.email },
+            { _id: user._id, email: user.email, role: user.role },
             jwtSecret
           );
         await user.save();
@@ -101,6 +102,7 @@ export async function userEdit(req, res) {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role,
         });
       } catch (error) {
         console.log(error);
@@ -331,6 +333,35 @@ export async function deleteAcc(req, res) {
     //res.header("x-auth-token", token).send("Deletion successful");
   } catch (error) {
     console.log(error);
+    res.status(500).send("Server error");
+  }
+}
+
+export async function userList(req, res) {
+  try {
+    if(req.user.role.toString() === "admin"){
+      const users = await User.find({}, {name: true, email: true, _id: false});
+      if (!users) return res.status(404).send("User not found");
+      res.send(users);
+    }else{
+      res.status(401).send("Not an admin")
+    }
+  } catch (error) {
+    res.status(500).send("Server error");
+  }
+}
+
+export async function aGetUser(req, res) {
+  try {
+    if (req.user.role.toString() === "admin"){
+      const user = await User.findById(req.params.id).select("name email password role createdAt favorites watchLater watched watching");
+      if (!user) return res.status(404).send("User not found");
+      res.send(user);
+    }else{
+      res.status(401).send("Not an admin")
+    }
+  } catch (error) {
+    //res.status(500).send(error);
     res.status(500).send("Server error");
   }
 }
