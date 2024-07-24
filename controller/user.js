@@ -114,7 +114,7 @@ export async function favList(req, res){
   try {
     const user = await User.findById(req.user._id).select("favorites");
     if (!user) return res.status(404).send("User not found");
-    console.log(user);
+    //console.log(user);
     res.send(user);
   } catch (error) {
     console.log(error);
@@ -139,7 +139,7 @@ export async function favToggle(req, res){
     for (const val in user.favorites){
       if (user.favorites[val] === movie._id.toString()) {
         user.favorites = user.favorites.filter(e => e !== movie._id.toString());
-        console.log(user);
+        //console.log(user);
         await user.save();
         return res.status(200).send("The movie was taken out of your favorites");
       }
@@ -158,7 +158,7 @@ export async function watchLaterList(req, res){
   try {
     const user = await User.findById(req.user._id).select("watchLater");
     if (!user) return res.status(404).send("User not found");
-    console.log(user);
+    //console.log(user);
     res.send(user);
   } catch (error) {
     console.log(error);
@@ -376,15 +376,12 @@ export async function fyp(req, res) {
     let foryou = [];
     if (!user) return res.status(404).send("User not found");
     for (const val in user.favorites){
-      console.log(user.favorites[val]);
       const movie = await Movie.findById(user.favorites[val]);
       if (movie){
-        console.log(movie.genre);
         let filter = {};
         const rx = new RegExp(movie.genre, "i");
         filter.genre = rx
         let movies = await Movie.find(filter, {name: true, ageRating: true, _id: false});
-        console.log(movies);
         if (movies) foryou.push(movies);
       }
     }

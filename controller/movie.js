@@ -3,9 +3,30 @@ import Movie from "../models/movie.js";
 import pkg from "jsonwebtoken";
 const { sign } = pkg;
 import { jwtSecret } from "../config.js";
+import multer from "multer";
 
 // Inscription d'un film
 export async function register(req, res) {
+  try {
+    if (req.user.role.toString() === "admin"){
+      const { name, director, genre, description, releaseDate, ageRating } = req.body;
+
+      let movie = await Movie.findOne({ name, director });
+      if (movie) return res.status(400).send("Movie already registered.");
+  
+      movie = new Movie({ name, director, genre, description, releaseDate, ageRating });
+      await movie.save();
+  
+      res.status(201).send(movie);
+    }else{
+      res.status(401).send("You must be admin to do this!");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+}
+export async function upload(req, res) {
   try {
     if (req.user.role.toString() === "admin"){
       const { name, director, genre, description, releaseDate, ageRating } = req.body;

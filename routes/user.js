@@ -11,7 +11,7 @@ router.get("/regusers/:id", auth, aGetUser); // Infos sur le compte
 router.get("/foryou", auth, fyp);
 router.post("/register", register); // Création de compte
 router.post("/login", login); // Connexion
-router.patch("/login/:id", userEdit); // Modification des infos du compte
+router.patch("/login/:id", auth, userEdit); // Modification des infos du compte
 router.get("/:id", auth, getUser); // Infos sur le compte
 router.get("/fav/list", auth, favList); // Liste de preferés
 router.patch("/fav/:movieId", auth, favToggle); // Ajout / Suppression d'un film à la liste de preferés
